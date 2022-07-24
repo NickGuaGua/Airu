@@ -9,7 +9,7 @@ import retrofit2.http.Query
  */
 internal interface EpaService {
 
-    @GET("/aqx_p_432")
+    @GET("v2/aqx_p_432")
     suspend fun getAQI(
         @Query("offset") offset: Int?,
         @Query("limit") limit: Int?,

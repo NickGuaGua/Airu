@@ -3,10 +3,9 @@ package com.guagua.airu.usecase
 import com.guagua.airu.data.repository.AirRepository
 import javax.inject.Inject
 
-class GetAqiUseCase @Inject constructor(
+class GetAQIsUseCase @Inject constructor(
     private val repository: AirRepository
 ) {
-    suspend operator fun invoke(offset: Int?, limit: Int?) {
+    suspend operator fun invoke(offset: Int = 1, limit: Int = 1000) =
         repository.getAQI(offset, limit)
-    }
 }
