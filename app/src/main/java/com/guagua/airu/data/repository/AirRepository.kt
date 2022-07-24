@@ -12,15 +12,15 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 
 interface AirRepository {
-    suspend fun getAQI(offset: Int?, limit: Int?, apiKey: String): ApiResponse<List<AQI>>
+    suspend fun getAQI(offset: Int?, limit: Int?): ApiResponse<List<AQI>>
 }
 
 class AirRepositoryImpl(
     private val epaDataSource: EpaDataSource
 ) : AirRepository {
 
-    override suspend fun getAQI(offset: Int?, limit: Int?, apiKey: String) = execute {
-        epaDataSource.getAQI(offset, limit, apiKey)
+    override suspend fun getAQI(offset: Int?, limit: Int?) = execute {
+        epaDataSource.getAQI(offset, limit)
     }.let { response ->
         ApiResponse.create(response).map { aqiList ->
             aqiList.map { AQI.create(it) }

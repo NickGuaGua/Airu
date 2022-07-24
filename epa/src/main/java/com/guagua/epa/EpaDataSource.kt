@@ -5,19 +5,18 @@ import retrofit2.Response
 interface EpaDataSource {
     suspend fun getAQI(
         offset: Int?,
-        limit: Int?,
-        apiKey: String
+        limit: Int?
     ): Response<ApiResponseBean<List<AQIBean>>>
 }
 
 internal class EpaDataSourceImpl(
-    private val epaService: EpaService
+    private val epaService: EpaService,
+    private val apiKey: String
 ): EpaDataSource {
 
     override suspend fun getAQI(
         offset: Int?,
         limit: Int?,
-        apiKey: String
     ): Response<ApiResponseBean<List<AQIBean>>> = epaService.getAQI(offset, limit, apiKey)
 }
 

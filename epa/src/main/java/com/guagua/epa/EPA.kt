@@ -21,7 +21,7 @@ object EPA {
         val okHttpClient = provideOkHttpClient(cacheDir, isDebug)
         val retrofit = provideRetrofit(okHttpClient)
         val epaService = retrofit.create(EpaService::class.java)
-        return EpaDataSourceImpl(epaService)
+        return EpaDataSourceImpl(epaService, apiKey)
     }
 
     private fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit = Retrofit.Builder()
