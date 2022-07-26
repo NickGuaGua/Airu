@@ -21,18 +21,24 @@ class HomeViewModel @Inject constructor(
         _state.update { it.copy(error = e) }
     }
 
-    fun getAQIs() = withLoading {
+    fun getAQIs(isRefresh: Boolean = false) = withLoading(isRefresh) {
         launch {
             val response = getAQIsUseCase.invoke()
             val (serverAQIs, normalAQIs) = response.data.partition { it.pm2_5 >= PM2_5_THRESHOLD }
-            _state.update { it.copy(severeAQIs = serverAQIs, normalAQIs = normalAQIs, error = null) }
+            _state.update {
+                it.copy(
+                    severeAQIs = serverAQIs,
+                    normalAQIs = normalAQIs,
+                    error = null
+                )
+            }
         }
     }
 
-    private fun withLoading(block: () -> Job) {
-        _state.update { it.copy(isLoading = true) }
+    private fun withLoading(isRefresh: Boolean = false, block: () -> Job) {
+        _state.update { it.copy(isLoading = true, isRefresh = isRefresh) }
         block().invokeOnCompletion {
-            _state.update { it.copy(isLoading = false) }
+            _state.update { it.copy(isLoading = false, isRefresh = false) }
         }
     }
 

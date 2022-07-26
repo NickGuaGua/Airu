@@ -81,4 +81,7 @@ dependencies {
 
     // Hilt & Navigation
     implementation("androidx.hilt:hilt-navigation-compose:$hilt_navigation_version")
+
+    // Accompanist Swipe Refresh Layout
+    implementation "com.google.accompanist:accompanist-swiperefresh:$accompanist_swiperefresh_version"
 }

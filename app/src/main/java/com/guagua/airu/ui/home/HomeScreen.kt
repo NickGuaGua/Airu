@@ -10,7 +10,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -18,10 +20,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -29,8 +29,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.guagua.airu.R
-import com.guagua.airu.data.exception.AiruException
 import com.guagua.airu.data.model.AQI
 import com.guagua.airu.ui.widget.BaseScreen
 
@@ -38,35 +39,44 @@ import com.guagua.airu.ui.widget.BaseScreen
 fun HomeScreen(viewModel: HomeViewModel) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+    val refreshState = rememberSwipeRefreshState(isRefreshing = state.isRefresh)
 
     LaunchedEffect(viewModel) {
         viewModel.getAQIs()
     }
 
     BaseScreen(
-        isLoading = state.isLoading,
+        isLoading = state.isLoading && !state.isRefresh,
         hasContent = !state.severeAQIs.isNullOrEmpty() && !state.normalAQIs.isNullOrEmpty(),
         error = state.error,
         onRetryClick = { viewModel.getAQIs() }
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             HomeTopBar(stringResource(id = R.string.air_pollution))
-            Spacer(modifier = Modifier.height(12.dp))
-            Column(modifier = Modifier.fillMaxSize()) {
-                state.severeAQIs?.let {
-                    SevereAQIsRow(aqis = it)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Spacer(
-                        modifier = Modifier
-                            .height(1.dp)
-                            .fillMaxWidth()
-                            .background(Color.Gray)
-                    )
-                }
-                state.normalAQIs?.let {
-                    NormalAQIsColumn(aqis = it) { aqi ->
-                        if (!aqi.status.isGood()) {
-                            Toast.makeText(context, "AQI: ${aqi.status}", Toast.LENGTH_SHORT).show()
+            SwipeRefresh(state = refreshState, onRefresh = { viewModel.getAQIs(true) }) {
+                Column {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        state.severeAQIs?.let {
+                            SevereAQIsRow(aqis = it)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(
+                                modifier = Modifier
+                                    .height(1.dp)
+                                    .fillMaxWidth()
+                                    .background(Color.Gray)
+                            )
+                        }
+                        state.normalAQIs?.let {
+                            NormalAQIsColumn(aqis = it) { aqi ->
+                                if (!aqi.status.isGood()) {
+                                    Toast.makeText(
+                                        context,
+                                        "AQI: ${aqi.status}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
                         }
                     }
                 }
