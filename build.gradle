@@ -4,6 +4,8 @@ buildscript {
         okhttp3_version = '4.9.3'
         retrofit_version = '2.9.0'
         hilt_version = '2.41'
+        navigation_version = "2.5.0"
+        hilt_navigation_version = "1.0.0"
     }
 }// Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {

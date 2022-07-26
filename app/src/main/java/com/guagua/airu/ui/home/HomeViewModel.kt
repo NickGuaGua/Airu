@@ -37,6 +37,6 @@ class HomeViewModel @Inject constructor(
     }
 
     companion object {
-        private const val PM2_5_THRESHOLD = 10
+        private const val PM2_5_THRESHOLD = 15
     }
 }

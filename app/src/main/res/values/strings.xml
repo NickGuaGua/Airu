@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Airu</string>
+
+    <!--  Home page title  -->
+    <string name="air_pollution">空氣污染</string>
+
+    <!--  Hint for AQI status  -->
+    <string name="status_good_hint">The status is good, we want to go out to have fun</string>
+
+    <!--  Content Description  -->
+    <string name="search_icon">Search Icon</string>
+    <string name="forward_arrow_icon">Forward Arrow Icon</string>
+
 </resources>
