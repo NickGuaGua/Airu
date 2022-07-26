@@ -30,21 +30,28 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.guagua.airu.R
+import com.guagua.airu.data.exception.AiruException
 import com.guagua.airu.data.model.AQI
+import com.guagua.airu.ui.widget.BaseScreen
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
 
-    LaunchedEffect(LocalLifecycleOwner.current) {
+    LaunchedEffect(viewModel) {
         viewModel.getAQIs()
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        HomeTopBar(stringResource(id = R.string.air_pollution))
-        Spacer(modifier = Modifier.height(12.dp))
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    BaseScreen(
+        isLoading = state.isLoading,
+        hasContent = !state.severeAQIs.isNullOrEmpty() && !state.normalAQIs.isNullOrEmpty(),
+        error = state.error,
+        onRetryClick = { viewModel.getAQIs() }
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            HomeTopBar(stringResource(id = R.string.air_pollution))
+            Spacer(modifier = Modifier.height(12.dp))
             Column(modifier = Modifier.fillMaxSize()) {
                 state.severeAQIs?.let {
                     SevereAQIsRow(aqis = it)
@@ -63,10 +70,6 @@ fun HomeScreen(viewModel: HomeViewModel) {
                         }
                     }
                 }
-            }
-
-            if (state.isLoading) {
-                CircularProgressIndicator()
             }
         }
     }
@@ -107,19 +110,6 @@ fun SevereAQIsRow(aqis: List<AQI>) {
 }
 
 @Composable
-fun NormalAQIsColumn(aqis: List<AQI>, onItemClick: ((AQI) -> Unit)? = null) {
-    LazyColumn(
-        contentPadding = PaddingValues(bottom = 16.dp)
-    ) {
-        items(aqis, key = { it.siteId }) {
-            NormalAqiItem(it) {
-                onItemClick?.invoke(it)
-            }
-        }
-    }
-}
-
-@Composable
 fun SevereAqiItem(aqi: AQI) {
     Column(
         modifier = Modifier
@@ -145,6 +135,19 @@ fun SevereAqiItem(aqi: AQI) {
             Text(text = aqi.county)
             Spacer(modifier = Modifier.weight(1f))
             Text(text = aqi.status.key)
+        }
+    }
+}
+
+@Composable
+fun NormalAQIsColumn(aqis: List<AQI>, onItemClick: ((AQI) -> Unit)? = null) {
+    LazyColumn(
+        contentPadding = PaddingValues(bottom = 16.dp)
+    ) {
+        items(aqis, key = { it.siteId }) {
+            NormalAqiItem(it) {
+                onItemClick?.invoke(it)
+            }
         }
     }
 }

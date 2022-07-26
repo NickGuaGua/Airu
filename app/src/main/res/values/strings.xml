@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Airu</string>
 
+    <string name="retry">Retry</string>
+
     <!--  Home page title  -->
     <string name="air_pollution">空氣污染</string>
 
@@ -10,5 +12,11 @@
     <!--  Content Description  -->
     <string name="search_icon">Search Icon</string>
     <string name="forward_arrow_icon">Forward Arrow Icon</string>
+    <string name="error_icon">Error Icon</string>
+
+    <!--  Error Message  -->
+    <string name="error_general">Something went wrong, please try again later. (%s)</string>
+    <string name="error_timeout">Timeout error, please try again later.</string>
+    <string name="error_network">Network error, please check your network connection.</string>
 
 </resources>

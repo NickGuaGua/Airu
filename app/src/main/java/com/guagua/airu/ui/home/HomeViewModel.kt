@@ -25,7 +25,7 @@ class HomeViewModel @Inject constructor(
         launch {
             val response = getAQIsUseCase.invoke()
             val (serverAQIs, normalAQIs) = response.data.partition { it.pm2_5 >= PM2_5_THRESHOLD }
-            _state.update { it.copy(severeAQIs = serverAQIs, normalAQIs = normalAQIs) }
+            _state.update { it.copy(severeAQIs = serverAQIs, normalAQIs = normalAQIs, error = null) }
         }
     }
 
