@@ -1,5 +1,7 @@
 package com.guagua.epa
 
+import com.guagua.epa.bean.AQIBean
+import com.guagua.epa.bean.ApiResponseBean
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query

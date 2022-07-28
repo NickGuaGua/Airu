@@ -1,4 +1,4 @@
-package com.guagua.epa
+package com.guagua.epa.bean
 
 import com.google.gson.annotations.SerializedName
 

@@ -1,5 +1,7 @@
 package com.guagua.epa
 
+import com.guagua.epa.bean.AQIBean
+import com.guagua.epa.bean.ApiResponseBean
 import retrofit2.Response
 
 interface EpaDataSource {
@@ -19,4 +21,3 @@ internal class EpaDataSourceImpl(
         limit: Int?,
     ): Response<ApiResponseBean<List<AQIBean>>> = epaService.getAQI(offset, limit, apiKey)
 }
-
