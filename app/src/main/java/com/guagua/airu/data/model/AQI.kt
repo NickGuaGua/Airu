@@ -1,6 +1,6 @@
 package com.guagua.airu.data.model
 
-import com.guagua.epa.AQIBean
+import com.guagua.epa.bean.AQIBean
 
 data class AQI(
     val siteId: String,

@@ -4,6 +4,8 @@ import android.content.Context
 import com.guagua.airu.BuildConfig
 import com.guagua.airu.data.repository.AirRepository
 import com.guagua.airu.data.repository.AirRepositoryImpl
+import com.guagua.airu.data.repository.cache.AiruCache
+import com.guagua.airu.data.repository.cache.AiruCacheImpl
 import com.guagua.epa.EPA
 import com.guagua.epa.EpaDataSource
 import dagger.Module
@@ -19,8 +21,8 @@ class AirModule {
 
     @Provides
     @Singleton
-    fun provideAirRepository(epaDataSource: EpaDataSource): AirRepository {
-        return AirRepositoryImpl(epaDataSource)
+    fun provideAirRepository(epaDataSource: EpaDataSource, cache: AiruCache): AirRepository {
+        return AirRepositoryImpl(epaDataSource, cache)
     }
 
     @Provides
@@ -31,5 +33,11 @@ class AirModule {
             BuildConfig.DEBUG,
             context.cacheDir
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideCache(): AiruCache {
+        return AiruCacheImpl()
     }
 }

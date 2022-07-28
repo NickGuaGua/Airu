@@ -1,6 +1,6 @@
 package com.guagua.airu.data.model
 
-import com.guagua.epa.ApiResponseBean
+import com.guagua.epa.bean.ApiResponseBean
 
 data class ApiResponse<T>(
     val total: Int,

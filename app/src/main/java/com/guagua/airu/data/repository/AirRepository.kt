@@ -4,6 +4,7 @@ import com.guagua.airu.data.exception.AiruException
 import com.guagua.airu.data.model.AQI
 import com.guagua.airu.data.model.ApiResponse
 import com.guagua.airu.data.model.map
+import com.guagua.airu.data.repository.cache.AiruCache
 import com.guagua.epa.EpaDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,24 +17,30 @@ interface AirRepository {
 }
 
 class AirRepositoryImpl(
-    private val epaDataSource: EpaDataSource
+    private val epaDataSource: EpaDataSource,
+    private val cache: AiruCache
 ) : AirRepository {
 
-    override suspend fun getAQI(offset: Int?, limit: Int?) = execute {
-        epaDataSource.getAQI(offset, limit)
-    }.let { response ->
-        ApiResponse.create(response).map { aqiList ->
-            aqiList.map { AQI.create(it) }
+    override suspend fun getAQI(offset: Int?, limit: Int?): ApiResponse<List<AQI>> {
+        return cache.get(offset, limit) ?: execute {
+            epaDataSource.getAQI(offset, limit)
+        }.let { response ->
+            ApiResponse.create(response).map { aqiList ->
+                aqiList.map { AQI.create(it) }
+            }
+        }.also {
+            cache.set(it, offset, limit)
         }
     }
 
-    private suspend fun <T> execute(request: suspend () -> Response<T>) = withContext(Dispatchers.IO) {
-        try {
-            val response = request.invoke()
-            if (!response.isSuccessful) {
-                val errorMessage = response.errorBody()?.string()
-                error(AiruException.ApiResponseError(message = errorMessage))
-            }
+    private suspend fun <T> execute(request: suspend () -> Response<T>) =
+        withContext(Dispatchers.IO) {
+            try {
+                val response = request.invoke()
+                if (!response.isSuccessful) {
+                    val errorMessage = response.errorBody()?.string()
+                    error(AiruException.ApiResponseError(message = errorMessage))
+                }
 
             return@withContext response.body() ?: error(AiruException.NullBody)
         } catch (e: SocketTimeoutException) {
