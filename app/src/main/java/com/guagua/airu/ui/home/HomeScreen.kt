@@ -33,12 +33,15 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.guagua.airu.R
 import com.guagua.airu.data.model.AQI
+import com.guagua.airu.ui.composition.LocalNavController
+import com.guagua.airu.ui.navigation.Screen
 import com.guagua.airu.ui.widget.BaseScreen
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+    val navController = LocalNavController.current
     val refreshState = rememberSwipeRefreshState(isRefreshing = state.isRefresh)
 
     LaunchedEffect(viewModel) {
@@ -52,7 +55,9 @@ fun HomeScreen(viewModel: HomeViewModel) {
         onRetryClick = { viewModel.getAQIs() }
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            HomeTopBar(stringResource(id = R.string.air_pollution))
+            HomeTopBar(stringResource(id = R.string.air_pollution)) {
+                navController.navigate(Screen.Search.path)
+            }
             SwipeRefresh(state = refreshState, onRefresh = { viewModel.getAQIs(true) }) {
                 Column {
                     Spacer(modifier = Modifier.height(12.dp))
@@ -86,7 +91,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
 }
 
 @Composable
-fun HomeTopBar(title: String) {
+fun HomeTopBar(title: String, onSearchClick: (() -> Unit)? = null) {
     TopAppBar(elevation = 2.dp) {
         Text(
             modifier = Modifier
@@ -99,7 +104,7 @@ fun HomeTopBar(title: String) {
         Icon(
             modifier = Modifier
                 .clip(CircleShape)
-                .clickable { }
+                .clickable(onSearchClick != null) { onSearchClick?.invoke() }
                 .padding(16.dp),
             painter = painterResource(id = R.drawable.ic_search),
             contentDescription = stringResource(id = R.string.search_icon)

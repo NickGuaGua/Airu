@@ -9,10 +9,18 @@
     <!--  Hint for AQI status  -->
     <string name="status_good_hint">The status is good, we want to go out to have fun</string>
 
+    <!--  Search field hint  -->
+    <string name="search_hint">請輸入「站名」</string>
+
+    <!--  Empty search result hint  -->
+    <string name="search_hint_without_keyword">輸入「站名」\n查詢該地區空汙資訊</string>
+    <string name="search_hint_no_result">找不到「%s」\n相關的空汙資訊</string>
+
     <!--  Content Description  -->
     <string name="search_icon">Search Icon</string>
     <string name="forward_arrow_icon">Forward Arrow Icon</string>
     <string name="error_icon">Error Icon</string>
+    <string name="back_icon">Back Icon</string>
 
     <!--  Error Message  -->
     <string name="error_general">Something went wrong, please try again later. (%s)</string>
