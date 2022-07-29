@@ -29,6 +29,7 @@ fun BaseScreen(
     hasContent: Boolean = false,
     error: Throwable? = null,
     onRetryClick: (() -> Unit)? = null,
+    onErrorConsumed: ((Throwable) -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
     val context = LocalContext.current
@@ -57,6 +58,7 @@ fun BaseScreen(
 
             if (hasContent) {
                 Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                onErrorConsumed?.invoke(it)
             } else {
                 Box(Modifier.matchParentSize(), contentAlignment = Alignment.Center) {
                     Column(

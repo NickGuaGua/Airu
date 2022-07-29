@@ -44,17 +44,18 @@ fun HomeScreen(viewModel: HomeViewModel) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
     val navController = LocalNavController.current
-    val refreshState = rememberSwipeRefreshState(isRefreshing = state.isRefresh)
+    val refreshState = rememberSwipeRefreshState(isRefreshing = state.isRefreshing)
 
     LaunchedEffect(viewModel) {
         viewModel.getAQIs()
     }
 
     BaseScreen(
-        isLoading = state.isLoading && !state.isRefresh,
+        isLoading = state.isLoading && !state.isRefreshing,
         hasContent = !state.severeAQIs.isNullOrEmpty() && !state.normalAQIs.isNullOrEmpty(),
         error = state.error,
-        onRetryClick = { viewModel.getAQIs() }
+        onRetryClick = { viewModel.getAQIs() },
+        onErrorConsumed = { viewModel.errorConsumed(it) }
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             HomeTopBar(stringResource(id = R.string.air_pollution)) {
@@ -232,7 +233,7 @@ fun NormalAqiItem(
                         .clip(CircleShape)
                         .background(aqi.status.getColor())
                 )
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(text = aqi.pm2_5.toString(), fontSize = 18.sp)
             }
             Text(

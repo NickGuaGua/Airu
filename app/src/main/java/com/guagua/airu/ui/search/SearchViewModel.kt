@@ -20,6 +20,12 @@ class SearchViewModel @Inject constructor(
 
     private var searchJob: Job? = null
 
+    override fun errorConsumed(e: Throwable) {
+        if (e == _state.value.error) {
+            _state.update { it.copy(error = null) }
+        }
+    }
+
     fun search(keyword: String) {
         searchJob?.cancel()
         searchJob = launch {

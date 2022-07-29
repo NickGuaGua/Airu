@@ -13,7 +13,11 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 
 interface AirRepository {
-    suspend fun getAQI(offset: Int?, limit: Int?): ApiResponse<List<AQI>>
+    suspend fun getAQI(
+        offset: Int?,
+        limit: Int?,
+        forceUpdate: Boolean = false
+    ): ApiResponse<List<AQI>>
 }
 
 class AirRepositoryImpl(
@@ -21,8 +25,13 @@ class AirRepositoryImpl(
     private val cache: AiruCache
 ) : AirRepository {
 
-    override suspend fun getAQI(offset: Int?, limit: Int?): ApiResponse<List<AQI>> {
-        return cache.get(offset, limit) ?: execute {
+    override suspend fun getAQI(
+        offset: Int?,
+        limit: Int?,
+        forceUpdate: Boolean
+    ): ApiResponse<List<AQI>> {
+        val cacheResult = cache.get<ApiResponse<List<AQI>>>(offset, limit)
+        return if (cacheResult == null || forceUpdate) execute {
             epaDataSource.getAQI(offset, limit)
         }.let { response ->
             ApiResponse.create(response).map { aqiList ->
@@ -30,7 +39,7 @@ class AirRepositoryImpl(
             }
         }.also {
             cache.set(it, offset, limit)
-        }
+        } else cacheResult
     }
 
     private suspend fun <T> execute(request: suspend () -> Response<T>) =
@@ -42,13 +51,13 @@ class AirRepositoryImpl(
                     error(AiruException.ApiResponseError(message = errorMessage))
                 }
 
-            return@withContext response.body() ?: error(AiruException.NullBody)
-        } catch (e: SocketTimeoutException) {
-            throw AiruException.Timeout
-        } catch (e: IOException) {
-            throw AiruException.NetworkError
-        } catch (e: Exception) {
-            throw AiruException.General
+                return@withContext response.body() ?: error(AiruException.NullBody)
+            } catch (e: SocketTimeoutException) {
+                throw AiruException.Timeout
+            } catch (e: IOException) {
+                throw AiruException.NetworkError
+            } catch (e: Exception) {
+                throw AiruException.General
+            }
         }
-    }
 }
