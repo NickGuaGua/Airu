@@ -8,8 +8,11 @@ import androidx.compose.material.ExposedDropdownMenuDefaults.textFieldColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -18,8 +21,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.guagua.airu.R
+import com.guagua.airu.ui.KeyboardState
 import com.guagua.airu.ui.composition.LocalNavController
 import com.guagua.airu.ui.home.NormalAQIsColumn
+import com.guagua.airu.ui.rememberKeyboardAsState
 import com.guagua.airu.ui.theme.TextColor
 import com.guagua.airu.ui.widget.BaseScreen
 
@@ -29,6 +34,12 @@ fun SearchScreen(viewModel: SearchViewModel) {
     val state by viewModel.state.collectAsState()
     var keyword by remember { mutableStateOf("") }
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val keyboardState = rememberKeyboardAsState()
+
+    LaunchedEffect(keyboardState) {
+        if (keyboardState == KeyboardState.Closed) focusManager.clearFocus()
+    }
 
     BaseScreen(
         isLoading = state.isLoading,
@@ -67,6 +78,8 @@ fun SearchBar(
     onBackClick: () -> Unit,
     onKeywordChanged: (keyword: String) -> Unit
 ) {
+    val focusRequester = remember { FocusRequester() }
+
     TopAppBar(elevation = 2.dp) {
         Icon(
             modifier = Modifier
@@ -78,7 +91,9 @@ fun SearchBar(
             tint = MaterialTheme.colors.onPrimary
         )
         TextField(
-            modifier = Modifier.align(Alignment.CenterVertically),
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .focusRequester(focusRequester),
             value = keyword,
             singleLine = true,
             placeholder = {
