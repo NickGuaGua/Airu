@@ -2,8 +2,8 @@ package com.guagua.airu
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.guagua.airu.data.repository.AirRepository
+import com.guagua.airu.domain.GetAQIsUseCase
 import com.guagua.airu.ui.home.HomeViewModel
-import com.guagua.airu.usecase.GetAQIsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK

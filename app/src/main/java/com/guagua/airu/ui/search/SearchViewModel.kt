@@ -1,7 +1,7 @@
 package com.guagua.airu.ui.search
 
+import com.guagua.airu.domain.GetAQIsUseCase
 import com.guagua.airu.ui.base.BaseViewModel
-import com.guagua.airu.usecase.GetAQIsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

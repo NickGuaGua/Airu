@@ -1,4 +1,4 @@
-package com.guagua.airu.usecase
+package com.guagua.airu.domain
 
 import com.guagua.airu.data.repository.AirRepository
 import javax.inject.Inject
