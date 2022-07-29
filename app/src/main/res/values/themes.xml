@@ -3,5 +3,6 @@
 
     <style name="Theme.Airu" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@color/grey_100</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>
