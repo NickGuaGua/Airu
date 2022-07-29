@@ -1,25 +1,26 @@
 package com.guagua.airu.ui.search
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.material.ExposedDropdownMenuDefaults.textFieldColors
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.guagua.airu.R
 import com.guagua.airu.ui.composition.LocalNavController
 import com.guagua.airu.ui.home.NormalAQIsColumn
+import com.guagua.airu.ui.theme.TextColor
 import com.guagua.airu.ui.widget.BaseScreen
 
 @Composable
@@ -27,6 +28,7 @@ fun SearchScreen(viewModel: SearchViewModel) {
     val navController = LocalNavController.current
     val state by viewModel.state.collectAsState()
     var keyword by remember { mutableStateOf("") }
+    val context = LocalContext.current
 
     BaseScreen(
         isLoading = state.isLoading,
@@ -44,7 +46,13 @@ fun SearchScreen(viewModel: SearchViewModel) {
                 }
             )
             Box(modifier = Modifier.fillMaxSize()) {
-                NormalAQIsColumn(aqis = state.searchResult)
+                NormalAQIsColumn(aqis = state.searchResult) {
+                    Toast.makeText(
+                        context,
+                        "AQI: ${it.status}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
                 if (state.searchResult.isEmpty() && !state.isLoading) {
                     EmptyHint(Modifier.align(Alignment.Center), keyword)
                 }
@@ -66,7 +74,8 @@ fun SearchBar(
                 .clickable { onBackClick() }
                 .padding(16.dp),
             painter = painterResource(id = R.drawable.ic_back),
-            contentDescription = stringResource(id = R.string.back_icon)
+            contentDescription = stringResource(id = R.string.back_icon),
+            tint = MaterialTheme.colors.onPrimary
         )
         TextField(
             modifier = Modifier.align(Alignment.CenterVertically),
@@ -78,14 +87,14 @@ fun SearchBar(
             onValueChange = {
                 onKeywordChanged(it)
             },
-            textStyle = TextStyle(fontSize = 16.sp),
+            textStyle = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium),
             colors = textFieldColors(
-                textColor = Color.White,
+                textColor = TextColor.TitleLight,
                 backgroundColor = Color.Transparent,
-                placeholderColor = Color.White,
+                placeholderColor = TextColor.Subtitle,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                cursorColor = Color.White
+                cursorColor = MaterialTheme.colors.onPrimary
             )
         )
     }
@@ -96,5 +105,11 @@ fun EmptyHint(modifier: Modifier = Modifier, keyword: String) {
     val hint = if (keyword.isBlank()) stringResource(id = R.string.search_hint_without_keyword)
     else stringResource(id = R.string.search_hint_no_result, keyword)
 
-    Text(modifier = modifier, text = hint, textAlign = TextAlign.Center, fontSize = 16.sp)
+    Text(
+        modifier = modifier,
+        text = hint,
+        textAlign = TextAlign.Center,
+        fontSize = 16.sp,
+        color = TextColor.TitleLight
+    )
 }

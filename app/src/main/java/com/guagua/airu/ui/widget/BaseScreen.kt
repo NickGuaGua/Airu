@@ -1,23 +1,24 @@
 package com.guagua.airu.ui.widget
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.guagua.airu.R
 import com.guagua.airu.data.exception.AiruException
-import com.guagua.airu.ui.theme.Teal200
+import com.guagua.airu.ui.theme.TextColor
 
 /**
  * BaseScreen provides default implementation of loading, retry callback and [AiruException] handling.
@@ -36,7 +37,7 @@ fun BaseScreen(
         content()
 
         if (isLoading) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(color = MaterialTheme.colors.secondary)
             return@Box
         }
 
@@ -65,17 +66,25 @@ fun BaseScreen(
                         Icon(
                             modifier = Modifier.size(68.dp),
                             painter = painterResource(id = errorIconResId),
-                            contentDescription = stringResource(id = R.string.error_icon)
+                            contentDescription = stringResource(id = R.string.error_icon),
+                            tint = MaterialTheme.colors.background
                         )
                         Spacer(modifier = Modifier.height(6.dp))
-                        Text(text = errorMessage)
+                        Text(
+                            text = errorMessage,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = TextColor.TitleLight
+                        )
 
                         onRetryClick?.let {
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 modifier = Modifier.clickable { it.invoke() },
                                 text = stringResource(id = R.string.retry),
-                                color = Teal200
+                                color = MaterialTheme.colors.secondary,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
                             )
                         }
                     }

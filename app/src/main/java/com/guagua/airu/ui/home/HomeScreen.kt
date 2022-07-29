@@ -2,15 +2,16 @@ package com.guagua.airu.ui.home
 
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
@@ -20,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -34,7 +34,9 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.guagua.airu.R
 import com.guagua.airu.data.model.AQI
 import com.guagua.airu.ui.composition.LocalNavController
+import com.guagua.airu.ui.getColor
 import com.guagua.airu.ui.navigation.Screen
+import com.guagua.airu.ui.theme.TextColor
 import com.guagua.airu.ui.widget.BaseScreen
 
 @Composable
@@ -56,21 +58,15 @@ fun HomeScreen(viewModel: HomeViewModel) {
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             HomeTopBar(stringResource(id = R.string.air_pollution)) {
-                navController.navigate(Screen.Search.path)
+                if (state.normalAQIs?.isNotEmpty() == true) {
+                    navController.navigate(Screen.Search.path)
+                }
             }
             SwipeRefresh(state = refreshState, onRefresh = { viewModel.getAQIs(true) }) {
                 Column {
-                    Spacer(modifier = Modifier.height(12.dp))
                     Column(modifier = Modifier.fillMaxSize()) {
                         state.severeAQIs?.let {
                             SevereAQIsRow(aqis = it)
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Spacer(
-                                modifier = Modifier
-                                    .height(1.dp)
-                                    .fillMaxWidth()
-                                    .background(Color.Gray)
-                            )
                         }
                         state.normalAQIs?.let {
                             NormalAQIsColumn(aqis = it) { aqi ->
@@ -99,7 +95,8 @@ fun HomeTopBar(title: String, onSearchClick: (() -> Unit)? = null) {
                 .padding(horizontal = 16.dp),
             text = title,
             fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colors.onPrimary
         )
         Icon(
             modifier = Modifier
@@ -107,7 +104,8 @@ fun HomeTopBar(title: String, onSearchClick: (() -> Unit)? = null) {
                 .clickable(onSearchClick != null) { onSearchClick?.invoke() }
                 .padding(16.dp),
             painter = painterResource(id = R.drawable.ic_search),
-            contentDescription = stringResource(id = R.string.search_icon)
+            contentDescription = stringResource(id = R.string.search_icon),
+            tint = MaterialTheme.colors.onPrimary
         )
     }
 }
@@ -115,6 +113,9 @@ fun HomeTopBar(title: String, onSearchClick: (() -> Unit)? = null) {
 @Composable
 fun SevereAQIsRow(aqis: List<AQI>) {
     LazyRow(
+        modifier = Modifier
+            .background(MaterialTheme.colors.primary)
+            .padding(vertical = 12.dp),
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
@@ -130,26 +131,43 @@ fun SevereAqiItem(aqi: AQI) {
         modifier = Modifier
             .width(IntrinsicSize.Max)
             .wrapContentHeight()
-            .border(2.dp, Color.Black, RoundedCornerShape(6.dp))
+            .background(
+                aqi.status
+                    .getColor()
+                    .copy(alpha = 0.6f), RoundedCornerShape(6.dp)
+            )
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        Row {
-            Text(text = aqi.siteId)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = aqi.siteId,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = TextColor.TitleLight
+            )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 modifier = Modifier.wrapContentSize(),
                 text = aqi.siteName,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = TextColor.Title
             )
             Spacer(modifier = Modifier.width(16.dp))
-            Text(text = aqi.pm2_5.toString())
+            Text(
+                text = aqi.pm2_5.toString(),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextColor.Title
+            )
         }
-        Row {
-            Text(text = aqi.county)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = aqi.county, fontSize = 11.sp, color = TextColor.TitleLight)
             Spacer(modifier = Modifier.weight(1f))
-            Text(text = aqi.status.key)
+            Text(text = aqi.status.key, fontSize = 11.sp, color = TextColor.TitleLight)
         }
     }
 }
@@ -159,12 +177,25 @@ fun NormalAQIsColumn(aqis: List<AQI>, onItemClick: ((AQI) -> Unit)? = null) {
     LazyColumn(
         contentPadding = PaddingValues(bottom = 16.dp)
     ) {
-        items(aqis, key = { it.siteId }) {
-            NormalAqiItem(it) {
-                onItemClick?.invoke(it)
+        itemsIndexed(aqis, key = { _, aqi -> aqi.siteId }) { index, aqi ->
+            NormalAqiItem(aqi) {
+                onItemClick?.invoke(aqi)
+            }
+            if (index != aqis.lastIndex) {
+                Divider(modifier = Modifier.padding(horizontal = 32.dp))
             }
         }
     }
+}
+
+@Composable
+fun Divider(modifier: Modifier = Modifier) {
+    Spacer(
+        modifier = modifier
+            .fillMaxSize()
+            .height(1.dp)
+            .background(MaterialTheme.colors.primary)
+    )
 }
 
 @Composable
@@ -180,32 +211,47 @@ fun NormalAqiItem(
     ) {
         Text(
             modifier = Modifier.padding(16.dp),
-            text = aqi.siteId
+            text = aqi.siteId,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Medium,
+            color = TextColor.TitleLight
         )
         Column(Modifier.weight(1f)) {
-            Text(text = aqi.siteName)
-            Text(text = aqi.county)
+            Text(text = aqi.siteName, fontWeight = FontWeight.Medium, fontSize = 18.sp)
+            Text(text = aqi.county, fontSize = 11.sp, color = TextColor.Subtitle)
         }
         Column(
             modifier = Modifier
                 .weight(2f)
                 .padding(end = 16.dp), horizontalAlignment = Alignment.End
         ) {
-            Text(text = aqi.pm2_5.toString())
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Spacer(
+                    modifier = Modifier
+                        .size(6.dp)
+                        .clip(CircleShape)
+                        .background(aqi.status.getColor())
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(text = aqi.pm2_5.toString(), fontSize = 18.sp)
+            }
             Text(
                 text = if (aqi.status.isGood()) stringResource(id = R.string.status_good_hint)
                 else aqi.status.key,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                fontSize = 11.sp
             )
         }
         if (!aqi.status.isGood()) {
             Icon(
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .padding(top = 16.dp, bottom = 16.dp, end = 16.dp),
+                    .padding(top = 16.dp, bottom = 16.dp, end = 16.dp)
+                    .size(18.dp),
                 painter = painterResource(id = R.drawable.ic_arrow_forward),
-                contentDescription = stringResource(id = R.string.forward_arrow_icon)
+                contentDescription = stringResource(id = R.string.forward_arrow_icon),
+                tint = MaterialTheme.colors.onSurface
             )
         }
     }
